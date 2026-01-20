@@ -55,7 +55,10 @@ async def add_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("💰 Enter amount paid:")
     return ASK_AMOUNT
 
-
+async def add_description(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("💬 Enter description of the expense:")
+    context.user_data["description"] = update.message.text
+    return ASK_AMOUNT
 async def receive_amount(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not update.message.text.isdigit():
         await update.message.reply_text("❌ Please enter a valid number.")
@@ -157,7 +160,8 @@ async def split_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         EXPENSES[group_id].append({
             "amount": amount,
             "paid_by": payer,
-            "split": split.copy()
+            "split": split.copy(),
+            "description": context.user_data.get("description", "")
         })
 
         names = GROUP_USERS[group_id]
@@ -168,7 +172,8 @@ async def split_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"Amount: ₹{amount}\n"
             f"Paid by: {names[payer]}\n"
             f"Split between: {', '.join(names[u] for u in split)}\n"
-            f"Per person: ₹{share:.2f}"
+            f"Per person: ₹{share:.2f}\n"
+            f"Description: {context.user_data.get('description', 'No description')}"
         )
 
         await query.edit_message_text(msg)
